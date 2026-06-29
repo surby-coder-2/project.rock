@@ -1,73 +1,60 @@
 "use client";
 
-import { Suspense, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
-function LoginForm() {
-  const params = useSearchParams();
+export default function LoginPage() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
-  const [sent, setSent] = useState(false);
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(
-    params.get("error") === "auth" ? "Link expired or invalid — request a new one." : ""
-  );
+  const [error, setError] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError("");
     const supabase = createClient();
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: { emailRedirectTo: `${location.origin}/auth/confirm` },
-    });
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
-      setError(error.message);
+      setError("Invalid email or password.");
     } else {
-      setSent(true);
+      router.push("/");
+      router.refresh();
     }
     setLoading(false);
   }
 
   return (
-    <>
-      {sent ? (
-        <div className="text-center space-y-2">
-          <p className="text-lg font-medium">Check your email</p>
-          <p className="text-gray-500">Tap the link in your inbox to sign in.</p>
-        </div>
-      ) : (
-        <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-4">
-          <input
-            type="email"
-            required
-            placeholder="your@email.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full border border-gray-300 rounded-xl px-4 py-4 text-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-          />
-          {error && <p className="text-red-500 text-sm">{error}</p>}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-teal-700 text-white rounded-xl py-4 text-lg font-semibold disabled:opacity-50 min-h-[56px]"
-          >
-            {loading ? "Sending…" : "Send magic link"}
-          </button>
-        </form>
-      )}
-    </>
-  );
-}
-
-export default function LoginPage() {
-  return (
     <main className="flex flex-col items-center justify-center min-h-screen p-6 gap-6">
       <h1 className="text-2xl font-bold text-teal-700">project.rock</h1>
-      <Suspense>
-        <LoginForm />
-      </Suspense>
+      <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-4">
+        <input
+          type="email"
+          required
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full border border-gray-300 rounded-xl px-4 py-4 text-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+        />
+        <input
+          type="password"
+          required
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full border border-gray-300 rounded-xl px-4 py-4 text-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+        />
+        {error && <p className="text-red-500 text-sm">{error}</p>}
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-teal-700 text-white rounded-xl py-4 text-lg font-semibold disabled:opacity-50 min-h-[56px]"
+        >
+          {loading ? "Signing in…" : "Sign in"}
+        </button>
+      </form>
     </main>
   );
 }
