@@ -1,13 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
-export default function LoginPage() {
+function LoginForm() {
+  const params = useSearchParams();
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(
+    params.get("error") === "auth" ? "Link expired or invalid — request a new one." : ""
+  );
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -27,9 +31,7 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen p-6 gap-6">
-      <h1 className="text-2xl font-bold text-teal-700">project.rock</h1>
-
+    <>
       {sent ? (
         <div className="text-center space-y-2">
           <p className="text-lg font-medium">Check your email</p>
@@ -55,6 +57,17 @@ export default function LoginPage() {
           </button>
         </form>
       )}
+    </>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <main className="flex flex-col items-center justify-center min-h-screen p-6 gap-6">
+      <h1 className="text-2xl font-bold text-teal-700">project.rock</h1>
+      <Suspense>
+        <LoginForm />
+      </Suspense>
     </main>
   );
 }
