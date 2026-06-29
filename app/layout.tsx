@@ -5,13 +5,13 @@ import "./globals.css";
 const geist = Geist({ variable: "--font-geist", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Island Escapes",
-  description: "Property Assistant for Island Escapes",
+  title: "project.rock",
+  description: "Property Assistant",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Island Escapes",
+    title: "project.rock",
   },
 };
 
